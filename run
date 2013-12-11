@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+# File:        run
+# Author:      Kyle Mulleady
+# Description: Use this file to execute the Network Metrics app from the command line.
+# Usage:       ./run <vna_file> [<vna_file> ...]
+
+echo "Compiling and running Kyle Mulleady's Network Metrics project..."
+
+cd src && \
+javac -d ../bin/ ics311km3/*.java && \
+cd ../bin/ && \
+java ics311km3/Driver $* && \
+cd ..
+
+echo "Done."

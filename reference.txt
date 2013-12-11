@@ -1,0 +1,101 @@
+File:   reference.txt
+Author: Kyle Mulleady
+
+My project is broken into the following source files:
+    
+    Constants.java
+    Vertex.java
+    Arc.java
+    Graph.java
+    Driver.java
+
+Constants.java
+--------------
+This is a simple Java interface where all constants used by the app are
+declared. No methods, just static final Strings.
+
+Vertex.java
+-----------
+This is a class that contains three instance variables: data, inAdjacentVertices,
+and outAdjacentVertices. The first is of type Object, the others are of type
+List<Vertex>. Other than simple getter/setter methods, this class has methods
+for returning the in/out degree of a vertex, as well as for returning an iterator
+of either list of vertices.
+
+Arc.java
+--------
+Arc is even more simple than Vertex. Arc contains instance variables for data,
+origin, and destination. The first instance variable is of type Object, the others
+are of type Vertex. The only methods in this class are getters/setters.
+
+Graph.java
+----------
+This class has 4 instance variables and over 30 methods. The four instance variables
+are for keeping track of a graph's vertices, arcs, vertexAnnotations, and arcAnnotations.
+All four variables are of type Map, although each has a distinct mapping of keys to
+values. The many graph procedures are implemented in this class: add/remove arcs, 
+add/remove vertices, get/set arc/vertex data, get/set arc/vertex annotations, get an 
+arc's origin/destination, reverse an arc's direction, and get graph statistics
+(number of arcs/vertices, in/out degree of vertices, iterators over arcs/vertices, etc.).
+
+Driver.java
+-----------
+Driver contains the application's main method. Its primary instance variable is 
+Map<String, Object> data, which is used to store information from user input graphs
+to be sent to stdout. It contains other instance variables--verticesInDecOrder, sccMap,
+time, scc, counter--which are only used to facilitate running depth-first search and
+computing strongly connected components.
+
+main() expects one or more String arguments representing .vna file names. When the user 
+    runs the application, the main method iterates over the given file names and, with the 
+    help of numerous static methods, analyzes the graphs one at a time, sending graph
+    statistics to stdout upon completion of each one. 
+loadGraph() reads the input file and creates a new graph object.
+analyzeGraph() calls compute methods and then calls printData().
+computeDegree() calculates the min/max/average in degree and out degree of the vertices
+    in the graph.
+computeDensity() calculates the graph's density.
+computeSCC() runs normal DFS, computes g-transpose, runs modified DFS, and finds the 
+    percent of vertices in the largest SCC.
+dfs() runs depth-first search. Both the regular and modified versions are encapsulated 
+    in this method.
+dfsVisit() has regular and modified versions as well, that follow suit with dfs().
+computeAdditionalSCCData() calculates the size of each SCC and arranges them in non-
+    decreasing order.
+printData() prints the graph statistics gathered by the aforementioned methods.
+prettyPrint() and log() help printData() print things nicely.
+
+Asymptotic Runtime Analysis
+---------------------------
+    Method               Big-0 / Θ   Explanation
+    ------               ---------   -----------
+    numVertices             Θ(1)     Constant time. Retrieve the number stored in a variable.
+    numArcs                 Θ(1)     Constant time. Retrieve the number stored in a variable.
+    vertices                Θ(V)     Returns an iterator. Cannot run in greater or less time than the number of vertices.
+    arcs                    Θ(E)     Returns an iterator. Cannot run in greater or less time than the number of arcs.
+    getVertex               Θ(1)     Java HashMaps offer constant-time performance for get operations.
+    getArc                  Θ(1)     Java HashMaps offer constant-time performance for get operations.
+    getVertexData           Θ(1)     Constant time. Retrieve the data stored in a variable.
+    getArcData              Θ(1)     Constant time. Retrieve the data stored in a variable.
+    inDegree                Θ(1)     Constant time. Retrieve the data stored in a variable.
+    outDegree               Θ(1)     Constant time. Retrieve the data stored in a variable.
+    inAdjacentVertices    Θ(deg(v))  My inAdjacentVertices variable is a linked list. If it were a matrix the runtime would be Θ(V).
+    outAdjacentVertices   Θ(deg(v))  My outAdjacentVertices variable is a linked list. If it were a matrix the runtime would be Θ(V).
+    origin                  Θ(1)     Constant time. Retrieve the vertex stored in an instance variable.
+    destination             Θ(1)     Constant time. Retrieve the vertex stored in an instance variable.
+    insertVertex            Θ(1)     Java HashMaps offer constant-time performance for put operations.
+    insertArc               Θ(1)     Java HashMaps offer constant-time performance for put operations.
+    setVertexData           Θ(1)     Constant time. Store a variable.
+    setArcData              Θ(1)     Constant time. Store a variable.
+    removeVertex            O(V^2)   Iterate over the set of vertices searching for v, with an inner loop that iterates over the
+                                     adjacentVertices searching for v.
+    removeArc               O(E)     Iterate over the set of edges, searching for a particular edge.
+    reverseDirection        Θ(1)     Constant time get/set operations.
+    setAnnotation           Θ(1)     Java HashMaps offer constant-time performance for put operations.
+    getAnnotation           Θ(1)     Java HashMaps offer constant-time performance for get operations.
+    removeAnnotation        Θ(1)     Java HashMaps offer constant-time performance for get operations.
+    clearAnnotations        O(V+E)   vertexAnnotations is a hashtable that maps a vertex to an inner hashtable that maps objects
+                                     to objects. Every time a vertex v is inserted into the graph, vertexAnnotations maps v to an
+                                     empty inner hashtable. To clear annotations under object k, iterate over the keys of
+                                     vertexAnnotations (which is the set of vertices in the graph), searching for a key that maps
+                                     to k. Once that's done, the same applies to arcAnnotations. Therefore, O(V+E).
