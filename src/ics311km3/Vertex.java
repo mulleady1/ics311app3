@@ -22,9 +22,15 @@ public class Vertex {
 
     public int inDegree()  { return this.inAdjacentVertices.size(); }
     public int outDegree() { return this.outAdjacentVertices.size(); }
+    public int numAdjacentVertices() { return this.inAdjacentVertices.size() + this.outAdjacentVertices.size(); }
     public Object getData() { return this.data; }
     public Iterator<Vertex> inAdjacentVertices()  { return this.inAdjacentVertices.iterator(); }
     public Iterator<Vertex> outAdjacentVertices() { return this.outAdjacentVertices.iterator(); }
+    public Iterator<Vertex> adjacentVertices() { 
+        List<Vertex> adjacentVertices = this.inAdjacentVertices;
+        adjacentVertices.addAll(this.outAdjacentVertices);
+        return adjacentVertices.iterator(); 
+    }
     public void addInAdjacentVertex(Vertex v)  { this.inAdjacentVertices.add(v); }
     public void addOutAdjacentVertex(Vertex v) { this.outAdjacentVertices.add(v); }
     public void removeInAdjacentVertex(Vertex v)  { this.inAdjacentVertices.remove(v); }

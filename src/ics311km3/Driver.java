@@ -86,6 +86,7 @@ public class Driver implements Constants {
 		if (g.numVertices() < 500) {
 			computeAdditionalSCCData(g);
 		}
+		data = NetworkMetrics.compute(g, data);
 		printData(g);
 	}
 	
@@ -293,6 +294,9 @@ public class Driver implements Constants {
 				log("    " + prettyPrint(num, 2) + "   " + prettyPrint(size, 3) + "    " + members);
 			}
 		}
+		fmt = new DecimalFormat("#.###");
+		log("Reciprocity: " + fmt.format(data.get(NUM_RECIPROCALS)));
+		log("Clustering Coefficient: " + fmt.format(data.get(CLUSTERING_COEFFICIENT)));
 		log(SEP2 + "\n");
 		data.clear();
 	}
