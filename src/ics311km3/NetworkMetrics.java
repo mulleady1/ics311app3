@@ -21,6 +21,7 @@ public class NetworkMetrics implements Constants {
 		int numReciprocals = 0;
 		while (i.hasNext()) {
 			Arc a = i.next();
+			// Check for an arc with origin and destination swapped.
 			Arc reciprocal = g.getArc(a.getOrigin(), a.getDestination());
 			if (reciprocal != null) {
 				numReciprocals++;
@@ -31,6 +32,8 @@ public class NetworkMetrics implements Constants {
 	}
 	
 	private static Map<String, Object> computeDegreeCorrelation(Graph g, Map<String, Object> data) {
+		// This algorithm is my implementation of Equation (8.27) in Newman's section 8.7. It follows
+		// the calculation for r but gives different results than those of Dr. Suthers.
 		Iterator<Arc> i = g.arcs();
 		int k = 0;
 		while (i.hasNext()) {
@@ -55,6 +58,8 @@ public class NetworkMetrics implements Constants {
 	}
 	
 	private static Map<String, Object> computeClusteringCoefficient(Graph g, Map<String, Object> data) {
+		// This algorithm is my implementation of Equation (10.3) in Newman's section 10.2. It follows
+		// the calculation for C, but again gives different results than those of Dr. Suthers.
 		Iterator<Vertex> i = g.vertices();
 		int numTriangles = 0; 
 		float connectedTriples = 0;
@@ -77,15 +82,19 @@ public class NetworkMetrics implements Constants {
 	}
 	
 	private static Map<String, Object> computeMeanGeodesicDistance(Graph g, Map<String, Object> data) {
+		// Compute mean geodesic distance with iterated BFS.
 		Vertex[] vertices = (Vertex[])g.verticesCollection().toArray(new Vertex[g.verticesCollection().size()]);
 		int meanGeoDist = 0, minSum = 0, max = 0;
 		for (int j = 0; j < vertices.length - 1; j++) {
 			for (int k = j; k < vertices.length; k++) {
 				Vertex u = vertices[j];
 				Vertex v = vertices[k];
-				// BFS returns a 2-element array: the min and max distances.
+				// BFS returns a 2-element array: the shortest path length from u to v, and the
+				// path length from u to the farthest vertex in g.
 				int[] distances = bfs(g, u, v);
+				// Sum the shortest path lengths to find mean geodesic distance.
 				minSum += distances[0];
+				// Check if the most recent run of bfs found the diameter of g.
 				if (distances[1] > max) {
 					max = distances[1];
 				}
@@ -98,6 +107,8 @@ public class NetworkMetrics implements Constants {
 	}
 	
 	private static int[] bfs(Graph g, Vertex s, Vertex t) {
+		// This algorithm is my implementation of BFS in CLRS, with the addition of min and 
+		// max, which find the shortest path from s to t and the diameter of g, respectively.
 		Iterator<Vertex> i = g.vertices();
 		while (i.hasNext()) {
 			Vertex v = i.next();
@@ -123,10 +134,12 @@ public class NetworkMetrics implements Constants {
 					g.setAnnotation(v, D, (int)g.getAnnotation(u, D) + 1);
 					g.setAnnotation(v, PARENT, u);
 					q.add(v);
-					// Check if v == t.
+					// If v == t, we found the shortest path from s to t.
 					if (v == t) {
 						min = (int)g.getAnnotation(v, D);
 					}
+					// Set max during each iteration, as the final iteration
+					// will be the maximum value.
 					max = (int)g.getAnnotation(v, D);
 				}
 			}
