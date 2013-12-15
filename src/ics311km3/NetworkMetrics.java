@@ -1,7 +1,9 @@
 package ics311km3;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 public class NetworkMetrics implements Constants {
 
@@ -10,11 +12,11 @@ public class NetworkMetrics implements Constants {
 		data = computeDegreeCorrelation(g, data);
 		data = computeClusteringCoefficient(g, data);
 		data = computeMeanGeodesicDistance(g, data);
-		data = computeGraphDiameter(g, data);
 		return data;
 	}
 	
 	private static Map<String, Object> computeReciprocity(Graph g, Map<String, Object> data) {
+		// Don't touch anything here, this algorithm is g2g.
 		Iterator<Arc> i = g.arcs();
 		int numReciprocals = 0;
 		while (i.hasNext()) {
@@ -29,7 +31,6 @@ public class NetworkMetrics implements Constants {
 	}
 	
 	private static Map<String, Object> computeDegreeCorrelation(Graph g, Map<String, Object> data) {
-		// This algorithm is incorrect.
 		Iterator<Arc> i = g.arcs();
 		int k = 0;
 		while (i.hasNext()) {
@@ -56,31 +57,88 @@ public class NetworkMetrics implements Constants {
 	private static Map<String, Object> computeClusteringCoefficient(Graph g, Map<String, Object> data) {
 		Iterator<Vertex> i = g.vertices();
 		int numTriangles = 0; 
-		float degreeSum = 0;
+		float connectedTriples = 0;
 		while (i.hasNext()) {
 			Vertex v = i.next();
 			int d = v.degree();
-			degreeSum += d / 2 * (d - 1);
 			for (int j = 0; j < d - 1; j++) {
-				for (int k = j; k < d; k++) {
-					if (g.getArc(v.adjacentVertices().get(j), v.adjacentVertices().get(k)) != null) {
+				for (int k = j + 1; k < d; k++) {
+					if (g.getArc(v.adjacentVertices().get(j), v.adjacentVertices().get(k)) != null
+				  	 || g.getArc(v.adjacentVertices().get(k), v.adjacentVertices().get(j)) != null) {
 						numTriangles++;
 					}
+					connectedTriples++;
 				}
 			}
 		}
-		float clusteringCoefficient = numTriangles / degreeSum;
+		float clusteringCoefficient = numTriangles * 3 / connectedTriples;
         data.put(CLUSTERING_COEFFICIENT, clusteringCoefficient);
 		return data;
 	}
 	
 	private static Map<String, Object> computeMeanGeodesicDistance(Graph g, Map<String, Object> data) {
-        data.put(MEAN_GEODESIC_DISTANCE, 0);
+		Vertex[] vertices = (Vertex[])g.verticesCollection().toArray(new Vertex[g.verticesCollection().size()]);
+		int meanGeoDist = 0, minSum = 0, max = 0;
+		for (int j = 0; j < vertices.length - 1; j++) {
+			for (int k = j; k < vertices.length; k++) {
+				Vertex u = vertices[j];
+				Vertex v = vertices[k];
+				// BFS returns a 2-element array: the min and max distances.
+				int[] distances = bfs(g, u, v);
+				minSum += distances[0];
+				if (distances[1] > max) {
+					max = distances[1];
+				}
+			}
+		}
+		meanGeoDist = minSum / (int) (Math.pow(g.numVertices(), 2));
+        data.put(MEAN_GEODESIC_DISTANCE, meanGeoDist);
+        data.put(DIAMETER, max);
 		return data;
 	}
 	
-	private static Map<String, Object> computeGraphDiameter(Graph g, Map<String, Object> data) {
-        data.put(DIAMETER, 0);
-		return data;
+	private static int[] bfs(Graph g, Vertex s, Vertex t) {
+		Iterator<Vertex> i = g.vertices();
+		while (i.hasNext()) {
+			Vertex v = i.next();
+			if (v != s) {
+				g.setAnnotation(v, COLOR, WHITE);
+				g.setAnnotation(v, D, INFINITY);
+				g.setAnnotation(v, PARENT, NIL);
+			}
+		}
+		g.setAnnotation(s, COLOR, GRAY);
+		g.setAnnotation(s, D, 0);
+		g.setAnnotation(s, PARENT, NIL);
+		Queue<Vertex> q = new LinkedList<Vertex>();
+		q.add(s);
+		int min = -1, max = -1;
+		while (!q.isEmpty()) {
+			Vertex u = q.poll();
+			i = u.adjacentVertices().iterator();
+			while (i.hasNext()) {
+				Vertex v = i.next();
+				if (g.getAnnotation(v, COLOR).equals(WHITE)) {
+					g.setAnnotation(v, COLOR, GRAY);
+					g.setAnnotation(v, D, (int)g.getAnnotation(u, D) + 1);
+					g.setAnnotation(v, PARENT, u);
+					q.add(v);
+					// Check if v == t.
+					if (v == t) {
+						min = (int)g.getAnnotation(v, D);
+					}
+					max = (int)g.getAnnotation(v, D);
+				}
+			}
+			g.setAnnotation(u, COLOR, BLACK);
+		}
+		return new int[] { min, max };
 	}
 }
+
+
+
+
+
+
+

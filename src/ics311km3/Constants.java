@@ -30,4 +30,5 @@ public interface Constants {
 	static final String CLUSTERING_COEFFICIENT = "CLUSTERING_COEFFICIENT";
 	static final String MEAN_GEODESIC_DISTANCE = "MEAN_GEODESIC_DISTANCE";
 	static final String DIAMETER = "DIAMETER";
+	static final int    INFINITY = Integer.MAX_VALUE;
 }

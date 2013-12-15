@@ -1,6 +1,7 @@
 package ics311km3;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -31,6 +32,9 @@ public class Graph {
     }
     public int numArcs() { 
     	return this.arcs.size(); 
+    }
+    public Collection<Vertex> verticesCollection() {
+    	return this.vertices.values();
     }
     public Iterator<Vertex> vertices() { 
     	return this.vertices.values().iterator(); 
