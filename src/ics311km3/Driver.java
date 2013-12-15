@@ -296,7 +296,11 @@ public class Driver implements Constants {
 		}
 		fmt = new DecimalFormat("#.###");
 		log("Reciprocity: " + fmt.format(data.get(NUM_RECIPROCALS)));
+		log("Degree Correlation: " + fmt.format(data.get(DEGREE_CORRELATION)));
 		log("Clustering Coefficient: " + fmt.format(data.get(CLUSTERING_COEFFICIENT)));
+		fmt = new DecimalFormat("###.#");
+		log("Mean Geodesic Distance: " + fmt.format(data.get(MEAN_GEODESIC_DISTANCE)));
+		log("Diameter: " + fmt.format(data.get(DIAMETER)));
 		log(SEP2 + "\n");
 		data.clear();
 	}
