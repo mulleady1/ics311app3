@@ -8,9 +8,8 @@ this directory. Use it like this:
     
     ./run <vna_file> [<vna_file> ...]
 
-You can provide one or more vna file arguments. All vna files from Dr. Suthers' project 
-description page are already in this directory, with the exception of the last file, 
-web-google.vna.
+You can provide one or more vna file arguments.  The vna files are already in this 
+directory.
 
 This script compiles only the java files in the src/ directory. If you want to run my
 test cases (in the test/ directory) you'll need to compile and run them manually.

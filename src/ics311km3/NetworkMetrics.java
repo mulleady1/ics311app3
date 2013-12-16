@@ -61,20 +61,26 @@ public class NetworkMetrics implements Constants {
 	private static Map<String, Object> computeDegreeCorrelation(Graph g, Map<String, Object> data) {
 		Iterator<Arc> i = g.arcs();
 		int k = 0;
+		int s1 = 0, s2 = 0, s3 = 0;
 		while (i.hasNext()) {
 			Arc a = i.next();
 			Vertex u = a.getOrigin();
 			Vertex v = a.getDestination();
 			k += u.degree() * v.degree();
+			if (g.getAnnotation(u, VISITED) == null) {
+				s1 += u.degree();
+				s2 += Math.pow(u.degree(), 2);
+				s3 += Math.pow(u.degree(), 3);
+				g.setAnnotation(u, VISITED, VISITED);
+			}
+			if (g.getAnnotation(v, VISITED) == null) {
+				s1 += v.degree();
+				s2 += Math.pow(v.degree(), 2);
+				s3 += Math.pow(v.degree(), 3);
+				g.setAnnotation(v, VISITED, VISITED);
+			}
 		}
-		Iterator<Vertex> j = g.vertices();
-		int s1 = 0, s2 = 0, s3 = 0;
-		while (j.hasNext()) {
-			Vertex v = j.next();
-			s1 += v.degree();
-			s2 += Math.pow(v.degree(), 2);
-			s3 += Math.pow(v.degree(), 3);
-		}
+		g.clearAnnotations(VISITED);
 		int se = 2 * k;
 		double degreeCorrelation = (s1 * se - Math.pow(s2, 2)) / (s1 * s3 - Math.pow(s2, 2));
 		data.put(DEGREE_CORRELATION, degreeCorrelation);
@@ -99,9 +105,9 @@ public class NetworkMetrics implements Constants {
 		while (i.hasNext()) {
 			Vertex v = i.next();
 			int d = v.degree();
+			List<Vertex> adjacentVertices = v.adjacentVertices();
 			for (int j = 0; j < d - 1; j++) {
 				for (int k = j + 1; k < d; k++) {
-					List<Vertex> adjacentVertices = v.adjacentVertices();
 					if (g.getArc(adjacentVertices.get(j), adjacentVertices.get(k)) != null
 				  	 || g.getArc(adjacentVertices.get(k), adjacentVertices.get(j)) != null) {
 						numTriangles++;
@@ -136,13 +142,13 @@ public class NetworkMetrics implements Constants {
 				int[] distances = bfs(g, u, v);
 				// Sum the shortest path lengths to find mean geodesic distance.
 				minSum += distances[0];
-				// Check if the most recent run of bfs found the diameter of g.
+				// Check if the most recent run of bfs found the diameter of g. If so, assign to max.
 				if (distances[1] > max) {
 					max = distances[1];
 				}
 			}
 		}
-		double meanGeoDist = minSum / (Math.pow(g.numVertices(), 2));
+		double meanGeoDist = (double) minSum / (g.numVertices() * (g.numVertices() - 1));
         data.put(MEAN_GEODESIC_DISTANCE, meanGeoDist);
         data.put(DIAMETER, max);
 		return data;
@@ -175,7 +181,7 @@ public class NetworkMetrics implements Constants {
 		g.setAnnotation(s, PARENT, NIL);
 		Queue<Vertex> q = new LinkedList<Vertex>();
 		q.add(s);
-		int min = -1, max = -1;
+		int min = 0, max = 0;
 		while (!q.isEmpty()) {
 			Vertex u = q.poll();
 			i = u.adjacentVertices().iterator();

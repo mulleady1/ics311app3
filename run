@@ -10,7 +10,7 @@ echo "Compiling and running Kyle Mulleady's Network Metrics project..."
 cd src && \
 javac -d ../bin/ ics311km3/*.java && \
 cd ../bin/ && \
-java ics311km3/Driver $* && \
+java -Xmx8g -Xss8g ics311km3/Driver $* >> ../output.txt && \
 cd ..
 
 echo "Done."
