@@ -2,11 +2,19 @@ package ics311km3;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
 public class NetworkMetrics implements Constants {
 
+	/**
+	 * Computes the metrics specified in Project 3.
+	 * 
+	 * @param g
+	 * @param data
+	 * @return the same map data, with added mappings for the five required metrics.
+	 */
 	public static Map<String, Object> compute(Graph g, Map<String, Object> data) {
 		data = computeReciprocity(g, data);
 		data = computeDegreeCorrelation(g, data);
@@ -15,6 +23,15 @@ public class NetworkMetrics implements Constants {
 		return data;
 	}
 	
+	/**
+	 * This algorithm finds the number of reciprocal arcs in g.
+	 * 
+	 * Treats g as a directed graph, obviously.
+	 * 
+	 * @param g
+	 * @param data
+	 * @return the same map data, with an added mapping for reciprocity.
+	 */
 	private static Map<String, Object> computeReciprocity(Graph g, Map<String, Object> data) {
 		// Don't touch anything here, this algorithm is g2g.
 		Iterator<Arc> i = g.arcs();
@@ -22,18 +39,26 @@ public class NetworkMetrics implements Constants {
 		while (i.hasNext()) {
 			Arc a = i.next();
 			// Check for an arc with origin and destination swapped.
-			Arc reciprocal = g.getArc(a.getOrigin(), a.getDestination());
+			Arc reciprocal = g.getArc(a.getDestination(), a.getOrigin());
 			if (reciprocal != null) {
 				numReciprocals++;
 			}
 		}
-		data.put(NUM_RECIPROCALS, (float)numReciprocals / g.numArcs());
+		data.put(RECIPROCITY, (float)numReciprocals / g.numArcs());
 		return data;
 	}
 	
+	/**
+	 * This algorithm is my implementation of Equation (8.27) in Newman's section 8.7. It follows
+	 * the calculation for r but gives different results than those of Dr. Suthers.
+	 * 
+	 * Treats g as a directed graph.
+	 * 
+	 * @param g
+	 * @param data
+	 * @return the same map data, with an added mapping for degree correlation.
+	 */
 	private static Map<String, Object> computeDegreeCorrelation(Graph g, Map<String, Object> data) {
-		// This algorithm is my implementation of Equation (8.27) in Newman's section 8.7. It follows
-		// the calculation for r but gives different results than those of Dr. Suthers.
 		Iterator<Arc> i = g.arcs();
 		int k = 0;
 		while (i.hasNext()) {
@@ -57,9 +82,17 @@ public class NetworkMetrics implements Constants {
 		return data;
 	}
 	
+	/**
+	 * This algorithm is my implementation of Equation (10.3) in Newman's section 10.2. It follows
+	 * the calculation for C, but again gives different results than those of Dr. Suthers.
+	 * 
+	 * Treats g as an undirected graph.
+	 * 
+	 * @param g
+	 * @param data
+	 * @return the same map data, with an added mapping for clustering coefficient.
+	 */
 	private static Map<String, Object> computeClusteringCoefficient(Graph g, Map<String, Object> data) {
-		// This algorithm is my implementation of Equation (10.3) in Newman's section 10.2. It follows
-		// the calculation for C, but again gives different results than those of Dr. Suthers.
 		Iterator<Vertex> i = g.vertices();
 		int numTriangles = 0; 
 		float connectedTriples = 0;
@@ -68,8 +101,9 @@ public class NetworkMetrics implements Constants {
 			int d = v.degree();
 			for (int j = 0; j < d - 1; j++) {
 				for (int k = j + 1; k < d; k++) {
-					if (g.getArc(v.adjacentVertices().get(j), v.adjacentVertices().get(k)) != null
-				  	 || g.getArc(v.adjacentVertices().get(k), v.adjacentVertices().get(j)) != null) {
+					List<Vertex> adjacentVertices = v.adjacentVertices();
+					if (g.getArc(adjacentVertices.get(j), adjacentVertices.get(k)) != null
+				  	 || g.getArc(adjacentVertices.get(k), adjacentVertices.get(j)) != null) {
 						numTriangles++;
 					}
 					connectedTriples++;
@@ -81,12 +115,20 @@ public class NetworkMetrics implements Constants {
 		return data;
 	}
 	
+	/**
+	 * Compute mean geodesic distance with iterated BFS.
+	 * 
+	 * Treats g as an undirected graph.
+	 * 
+	 * @param g
+	 * @param data
+	 * @return the same map data, with an added mapping for geodesic distance and graph diameter.
+	 */
 	private static Map<String, Object> computeMeanGeodesicDistance(Graph g, Map<String, Object> data) {
-		// Compute mean geodesic distance with iterated BFS.
 		Vertex[] vertices = (Vertex[])g.verticesCollection().toArray(new Vertex[g.verticesCollection().size()]);
-		int meanGeoDist = 0, minSum = 0, max = 0;
+		int minSum = 0, max = 0;
 		for (int j = 0; j < vertices.length - 1; j++) {
-			for (int k = j; k < vertices.length; k++) {
+			for (int k = j + 1; k < vertices.length; k++) {
 				Vertex u = vertices[j];
 				Vertex v = vertices[k];
 				// BFS returns a 2-element array: the shortest path length from u to v, and the
@@ -100,15 +142,25 @@ public class NetworkMetrics implements Constants {
 				}
 			}
 		}
-		meanGeoDist = minSum / (int) (Math.pow(g.numVertices(), 2));
+		double meanGeoDist = minSum / (Math.pow(g.numVertices(), 2));
         data.put(MEAN_GEODESIC_DISTANCE, meanGeoDist);
         data.put(DIAMETER, max);
 		return data;
 	}
 	
+	/**
+	 * This algorithm is my implementation of BFS in CLRS, with the addition of min and 
+	 * max, which find the shortest path from s to t and the diameter of g, respectively.
+	 * 
+	 * Treats g as an undirected graph.
+	 * 
+	 * @param g
+	 * @param s
+	 * @param t
+	 * @return an int[] array with 2 elements: element 0 is the shortest path length between 
+	 *         s and t, element 1 is the path length between s and the farthest vertex in g.
+	 */
 	private static int[] bfs(Graph g, Vertex s, Vertex t) {
-		// This algorithm is my implementation of BFS in CLRS, with the addition of min and 
-		// max, which find the shortest path from s to t and the diameter of g, respectively.
 		Iterator<Vertex> i = g.vertices();
 		while (i.hasNext()) {
 			Vertex v = i.next();

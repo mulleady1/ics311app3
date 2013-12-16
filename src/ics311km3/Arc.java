@@ -15,6 +15,10 @@ public class Arc {
     public void setData(Object o) { this.data = o; }
     public void removeData() { this.data = null; }
     public String toString() {
-    	return this.data == null ? "no data" : this.data.toString();
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("data: " + this.data == null ? "no data" : this.data.toString());
+    	sb.append(", origin: " + this.origin.getKey());
+    	sb.append(", destination: " + this.destination.getKey());
+    	return sb.toString();
     }
 }

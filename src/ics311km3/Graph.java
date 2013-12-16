@@ -76,7 +76,7 @@ public class Graph {
     	return a.getDestination(); 
     }
     public Vertex insertVertex(Object key) { 
-        Vertex v = new Vertex();
+        Vertex v = new Vertex(key);
         this.vertices.put(key, v);
         // Create vertexAnnotations inner map.
         Map<Object, Object> map = new HashMap<Object, Object>();

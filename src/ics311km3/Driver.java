@@ -62,11 +62,11 @@ public class Driver implements Constants {
 					Vertex u = g.getVertex(tokens[0].trim());
 					Vertex v = g.getVertex(tokens[1].trim());
 					if (u != null && v != null) {
-						if (tokens.length == 2) {
-							g.insertArc(u, v);
-						}
-						else if (tokens.length > 2) {
+						if (tokens.length > 2) {
 							g.insertArc(u, v, tokens[2].trim());
+						}
+						else {
+							g.insertArc(u, v);
 						}
 					}
 				}
@@ -156,6 +156,11 @@ public class Driver implements Constants {
 		NumberFormat fmt = new DecimalFormat("##.#");
 		String percent = fmt.format((float)sccMap.get(largestSCC) / g.numVertices() * 100) + "%";
 		data.put(PERCENT_IN_LARGEST_SCC, percent);
+		// Undo g-transpose.
+		i = g.arcs();
+		while (i.hasNext()) {
+			g.reverseDirection(i.next());
+		}
 	}
 	
 	private static int time, scc, counter;
@@ -295,7 +300,7 @@ public class Driver implements Constants {
 			}
 		}
 		fmt = new DecimalFormat("#.###");
-		log("Reciprocity: " + fmt.format(data.get(NUM_RECIPROCALS)));
+		log("Reciprocity: " + fmt.format(data.get(RECIPROCITY)));
 		log("Degree Correlation: " + fmt.format(data.get(DEGREE_CORRELATION)));
 		log("Clustering Coefficient: " + fmt.format(data.get(CLUSTERING_COEFFICIENT)));
 		fmt = new DecimalFormat("###.#");

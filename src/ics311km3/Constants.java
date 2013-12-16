@@ -25,7 +25,7 @@ public interface Constants {
 	static final String SEP  = "---------------------------------------------------------------";
 	static final String SEP2 = "===============================================================";
 
-	static final String NUM_RECIPROCALS = "NUM_RECIPROCALS";
+	static final String RECIPROCITY = "RECIPROCITY";
 	static final String DEGREE_CORRELATION = "DEGREE_CORRELATION";
 	static final String CLUSTERING_COEFFICIENT = "CLUSTERING_COEFFICIENT";
 	static final String MEAN_GEODESIC_DISTANCE = "MEAN_GEODESIC_DISTANCE";
